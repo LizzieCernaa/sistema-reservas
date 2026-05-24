@@ -18,19 +18,20 @@ import { useState, useEffect } from "react";
     }, []);
     return hash;
   }
-
+  
   const G = "#E8A020";
   const BG = "#09111f";
   const CARD = "#0f1a2e";
   const CARD2 = "#142035";
   const WA_GREEN = "#25D366";
+  const YELLOW = "#e8b020";
 
   // ⚠️  CAMBIAR: número de WhatsApp del organizador.
   // Formato internacional sin "+" ni guiones ni espacios.
   // Ejemplo El Salvador: "50370001234"
-  const WHATSAPP_NUMBER = "50374951368";
+  const WHATSAPP_NUMBER = "50377392464";
   // Cómo se muestra al usuario (con formato legible).
-  const WHATSAPP_DISPLAY = "+503 7495-1368";
+  const WHATSAPP_DISPLAY = "+503 7739-2464";
 
   const FONTS_HREF =
     "https://fonts.googleapis.com/css2" +
@@ -92,7 +93,7 @@ import { useState, useEffect } from "react";
     if (hash === "#admin") return <AdminPanel />;
     return <Reservas />;
   }
-  
+
   function Reservas() {
     const [tab, setTab] = useState("mesas");
     const [step, setStep] = useState("browse");
@@ -198,7 +199,7 @@ import { useState, useEffect } from "react";
       setConfirm(null);
       setErrorMsg("");
     };
-
+  
     const inSel = step === "selectMesa";
     const activeMesa = inSel ? comboMesa : selMesa;
     const hasAction = selMesa || selCombo || comboMesa;
@@ -527,7 +528,7 @@ import { useState, useEffect } from "react";
             `($${confirm.combo.price})`,
         ],
       ].filter(Boolean);
-  
+
       const waMsg =
         `Hola! Adjunto mi comprobante de pago para la reserva ` +
         `${confirm.id} a nombre de ${confirm.name}.`;
@@ -561,19 +562,28 @@ import { useState, useEffect } from "react";
               </div>
             ))}
           </div>
-  
+
           <div style={S.waCard}>
             <div
               style={{
-                fontSize: 11,
-                color: WA_GREEN,
-                letterSpacing: 1.5,
-                fontWeight: 700,
-                marginBottom: 10,
+                fontSize: 13,
+                color: "#ccd6f0",
+                letterSpacing: 1,
+                fontWeight: 600,
+                marginBottom: 12,
                 textAlign: "center",
               }}
             >
-              ⚠️  ÚLTIMO PASO PARA COMPLETAR
+              Tu reserva está{" "}
+              <span
+                style={{
+                  color: YELLOW,
+                  fontWeight: 700,
+                  letterSpacing: 1.5,
+                }}
+              >
+                PENDIENTE
+              </span>
             </div>
             <div
               style={{
@@ -584,8 +594,7 @@ import { useState, useEffect } from "react";
                 textAlign: "center",
               }}
             >
-              Para completar tu reserva, envía tu{" "}
-              <b>comprobante de pago</b> por WhatsApp al{" "}
+              Enviá tu <b>comprobante de pago</b> por WhatsApp al{" "}
               <b style={{ color: WA_GREEN }}>📱 {WHATSAPP_DISPLAY}</b>{" "}
               indicando tu código{" "}
               <b
@@ -608,15 +617,15 @@ import { useState, useEffect } from "react";
             </a>
             <div
               style={{
-                fontSize: 10,
-                color: "#778",
+                fontSize: 11,
+                color: "#889",
                 textAlign: "center",
-                marginTop: 10,
-                lineHeight: 1.4,
+                marginTop: 12,
+                lineHeight: 1.5,
               }}
             >
-              Tu mesa queda reservada al instante. La reserva se aprueba
-              al recibir el comprobante.
+              El admin verificará el pago y aprobará tu reserva.
+              Tu mesa queda apartada mientras tanto.
             </div>
           </div>
 
@@ -783,9 +792,9 @@ import { useState, useEffect } from "react";
         })}
       </div>
     );
-  
+
     const gA = countAvail("g", 84);
-    const vA = countAvail("v", 13);
+    const vA = countAvail("v", 17);
 
     return (
       <div style={S.root}>
@@ -912,7 +921,7 @@ import { useState, useEffect } from "react";
                 <span style={S.secT}>MESAS VIP</span>
                 <span style={S.secC}>{vA} disponibles</span>
               </div>
-              {renderGrid("v", 13, 7)}
+              {renderGrid("v", 17, 7)}
             </div>
             <div style={S.sec}>
               <div style={S.secHd}>
