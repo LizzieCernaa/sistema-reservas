@@ -27,6 +27,19 @@ import { useState, useEffect, useMemo } from "react";
 
   const TOTAL_G = 84;
   const TOTAL_V = 17;
+
+  // Precios para cálculo de ingresos
+  const PRICE_MESA_G = 5;
+  const PRICE_MESA_V = 60;
+
+  // Suma el ingreso total de una reserva: mesa (si tiene) + combo (si tiene).
+  const reservaTotal = (r) => {
+    let total = 0;
+    if (r.mesa?.type === "v") total += PRICE_MESA_V;
+    else if (r.mesa?.type === "g") total += PRICE_MESA_G;
+    if (r.combo) total += r.combo.price || 0;
+    return total;
+  };
   
   const STATUS_LABELS = {
     pending: { label: "PENDIENTE", color: YELLOW, bg: "#2a230a" },
@@ -88,7 +101,7 @@ import { useState, useEffect, useMemo } from "react";
         v: countByStatus("v", TOTAL_V),
       };
     }, [mesas]);
-  
+
     const filteredReservas = useMemo(() => {
       if (filter === "all") return reservas;
       return reservas.filter((r) => (r.status || "pending") === filter);
@@ -353,7 +366,7 @@ import { useState, useEffect, useMemo } from "react";
         color: active ? color : "#778",
         fontFamily: "'Outfit',sans-serif",
       }),
-  
+
       listWrap: { padding: "10px 16px 30px" },
       resCard: {
         background: CARD2,
@@ -412,7 +425,7 @@ import { useState, useEffect, useMemo } from "react";
         textAlign: "center",
         color: "#556",
       },
-
+  
       dangerZone: {
         margin: "4px 16px 8px",
         padding: "12px 14px",
@@ -448,6 +461,54 @@ import { useState, useEffect, useMemo } from "react";
         cursor: "pointer",
         fontFamily: "'Outfit',sans-serif",
         letterSpacing: 0.5,
+      },
+
+      ingresoRow: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        padding: "3px 0",
+      },
+
+      incomeBreak: {
+        margin: "4px 16px 12px",
+        padding: "14px 16px",
+        background: CARD2,
+        border: `1px solid ${G}30`,
+        borderRadius: 11,
+      },
+      incomeBreakTitle: {
+        fontSize: 10,
+        color: G,
+        letterSpacing: 1.5,
+        fontWeight: 700,
+        marginBottom: 10,
+      },
+      incomeBreakRow: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        padding: "5px 0",
+        fontSize: 13,
+        color: "#ccd6f0",
+      },
+      incomeBreakLabel: {
+        color: "#889",
+      },
+      incomeBreakValue: {
+        color: "#ccd6f0",
+        fontWeight: 500,
+      },
+      incomeBreakTotal: {
+        marginTop: 10,
+        paddingTop: 10,
+        borderTop: `1px solid ${G}30`,
+        fontFamily: "'Cinzel',serif",
+        fontSize: 18,
+        color: G,
+        fontWeight: 700,
+        textAlign: "center",
+        letterSpacing: 1.5,
       },
     };
 
@@ -594,16 +655,39 @@ import { useState, useEffect, useMemo } from "react";
       },
     ];
 
-    const totalIngreso = reservas.reduce(
+    // Ingresos por estado
+    const aprobadas = reservas.filter((r) => r.status === "confirmed");
+    const pendientes = reservas.filter(
+      (r) => (r.status || "pending") === "pending"
+    );
+    const aprobadoTotal = aprobadas.reduce(
+      (sum, r) => sum + reservaTotal(r),
+      0
+    );
+    const pendienteTotal = pendientes.reduce(
+      (sum, r) => sum + reservaTotal(r),
+      0
+    );
+    const totalGeneral = reservas.reduce(
+      (sum, r) => sum + reservaTotal(r),
+      0
+    );
+
+    // Desglose de ingresos APROBADOS por tipo
+    const mesasGenAprobadas = aprobadas.filter(
+      (r) => r.mesa?.type === "g"
+    ).length;
+    const mesasVipAprobadas = aprobadas.filter(
+      (r) => r.mesa?.type === "v"
+    ).length;
+    const combosAprobados = aprobadas.filter((r) => r.combo);
+    const combosCount = combosAprobados.length;
+    const combosTotal = combosAprobados.reduce(
       (sum, r) => sum + (r.combo?.price || 0),
       0
     );
-    const aprobadoIngreso = reservas
-      .filter((r) => r.status === "confirmed")
-      .reduce((sum, r) => sum + (r.combo?.price || 0), 0);
-    const aprobadoPct = reservas.length
-      ? (countConfirmed / reservas.length) * 100
-      : 0;
+    const mesasGenIngreso = mesasGenAprobadas * PRICE_MESA_G;
+    const mesasVipIngreso = mesasVipAprobadas * PRICE_MESA_V;
 
     return (
       <div style={S.root}>
@@ -673,15 +757,78 @@ import { useState, useEffect, useMemo } from "react";
           })}
           <div style={S.countCard}>
             <div style={S.countTitle}>INGRESO ESTIMADO</div>
-            <div style={S.countRow}>
-              <span style={S.countBig}>${aprobadoIngreso}</span>
-              <span style={S.countSub}>
-                aprobadas · ${totalIngreso} totales
+            <div style={S.ingresoRow}>
+              <span style={{ color: GREEN, fontSize: 12 }}>Aprobado</span>
+              <span
+                style={{
+                  color: GREEN,
+                  fontFamily: "'Cinzel',serif",
+                  fontSize: 18,
+                  fontWeight: 700,
+                }}
+              >
+                ${aprobadoTotal}
               </span>
             </div>
-            <div style={{ ...S.bar, background: "#0a2a14" }}>
-              <div style={S.barSeg(GREEN, aprobadoPct)}></div>
+            <div style={S.ingresoRow}>
+              <span style={{ color: YELLOW, fontSize: 12 }}>Pendiente</span>
+              <span
+                style={{
+                  color: YELLOW,
+                  fontFamily: "'Cinzel',serif",
+                  fontSize: 16,
+                  fontWeight: 600,
+                }}
+              >
+                ${pendienteTotal}
+              </span>
             </div>
+            <div
+              style={{
+                ...S.ingresoRow,
+                borderTop: "1px solid #1a2d45",
+                marginTop: 6,
+                paddingTop: 6,
+              }}
+            >
+              <span style={{ color: "#778", fontSize: 11 }}>
+                Total general
+              </span>
+              <span
+                style={{ color: "#ccd6f0", fontSize: 13, fontWeight: 500 }}
+              >
+                ${totalGeneral}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div style={S.incomeBreak}>
+          <div style={S.incomeBreakTitle}>
+            DESGLOSE DE INGRESOS APROBADOS
+          </div>
+          <div style={S.incomeBreakRow}>
+            <span style={S.incomeBreakLabel}>
+              Mesas Generales vendidas
+            </span>
+            <span style={S.incomeBreakValue}>
+              {mesasGenAprobadas} × ${PRICE_MESA_G} = ${mesasGenIngreso}
+            </span>
+          </div>
+          <div style={S.incomeBreakRow}>
+            <span style={S.incomeBreakLabel}>Mesas VIP vendidas</span>
+            <span style={S.incomeBreakValue}>
+              {mesasVipAprobadas} × ${PRICE_MESA_V} = ${mesasVipIngreso}
+            </span>
+          </div>
+          <div style={S.incomeBreakRow}>
+            <span style={S.incomeBreakLabel}>Combos vendidos</span>
+            <span style={S.incomeBreakValue}>
+              {combosCount} → ${combosTotal}
+            </span>
+          </div>
+          <div style={S.incomeBreakTotal}>
+            TOTAL APROBADO: ${aprobadoTotal}
           </div>
         </div>
 
@@ -701,7 +848,7 @@ import { useState, useEffect, useMemo } from "react";
             {resetting ? "Reseteando..." : "🔄 Resetear todas las mesas"}
           </button>
         </div>
-  
+
         <div style={S.filterRow}>
           {filterDefs.map((f) => (
             <button
@@ -768,7 +915,7 @@ import { useState, useEffect, useMemo } from "react";
                     </span>
                   )}
                 </div>
-
+  
                 <div style={S.resGrid}>
                   <div style={S.resField}>
                     <div style={S.fk}>NOMBRE</div>
@@ -847,3 +994,4 @@ import { useState, useEffect, useMemo } from "react";
       </div>
     );
   }
+  
