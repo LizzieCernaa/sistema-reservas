@@ -1,0 +1,1 @@
+import{initializeApp}from"firebase/app";import{getFirestore}from"firebase/firestore";const app=initializeApp({apiKey:"AIzaSyDSspuaz6Iil6NlrgpgUvyQuOB87e_iPw8",authDomain:"reservas-evento.firebaseapp.com",projectId:"reservas-evento",messagingSenderId:"458445965286",appId:"1:458445965286:web:ca91aa5e7228368f6ff827"});export const db=getFirestore(app);
