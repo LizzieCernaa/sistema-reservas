@@ -16,7 +16,7 @@ import { useState, useEffect, useMemo } from "react";
   const ADMIN_USER = "admin";
   const ADMIN_PASS = "evento2025";
   const SESSION_KEY = "rsv_admin_session";
-
+  
   const G = "#E8A020";
   const BG = "#09111f";
   const CARD = "#0f1a2e";
@@ -31,7 +31,7 @@ import { useState, useEffect, useMemo } from "react";
   // Precios para cálculo de ingresos
   const PRICE_MESA_G = 5;
   const PRICE_MESA_V = 60;
-
+  
   // Suma el ingreso total de una reserva: mesa (si tiene) + combo (si tiene).
   const reservaTotal = (r) => {
     let total = 0;
@@ -40,7 +40,7 @@ import { useState, useEffect, useMemo } from "react";
     if (r.combo) total += r.combo.price || 0;
     return total;
   };
-  
+
   const STATUS_LABELS = {
     pending: { label: "PENDIENTE", color: YELLOW, bg: "#2a230a" },
     confirmed: { label: "APROBADO", color: GREEN, bg: "#0a2a14" },
@@ -302,7 +302,7 @@ import { useState, useEffect, useMemo } from "react";
         cursor: "pointer",
         fontFamily: "'Outfit',sans-serif",
       },
-
+  
       countersGrid: {
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
@@ -425,7 +425,7 @@ import { useState, useEffect, useMemo } from "react";
         textAlign: "center",
         color: "#556",
       },
-  
+
       dangerZone: {
         margin: "4px 16px 8px",
         padding: "12px 14px",
@@ -517,8 +517,7 @@ import { useState, useEffect, useMemo } from "react";
         <div style={S.root}>
           <div style={S.hdr}>
             <div>
-              <div style={S.h1}>PANEL DE ADMINISTRACIÓN</div>
-              <div style={S.sub}>SISTEMA DE RESERVAS</div>
+              <div style={S.h1}>LOGIN SISTEMA DE RESERVAS</div>
             </div>
             <a
               href="#"
@@ -547,7 +546,7 @@ import { useState, useEffect, useMemo } from "react";
                     letterSpacing: 3,
                   }}
                 >
-                  ACCESO RESTRINGIDO
+                  LOGIN SISTEMA DE RESERVAS
                 </div>
               </div>
               <div style={{ marginBottom: 13 }}>
@@ -654,7 +653,7 @@ import { useState, useEffect, useMemo } from "react";
         color: RED,
       },
     ];
-
+  
     // Ingresos por estado
     const aprobadas = reservas.filter((r) => r.status === "confirmed");
     const pendientes = reservas.filter(
@@ -695,7 +694,7 @@ import { useState, useEffect, useMemo } from "react";
           <div>
             <div style={S.h1}>PANEL DE RESERVAS</div>
             <div style={S.sub}>
-              MIÉRCOLES 20 DE MAYO • {reservas.length} reservas totales
+              VIERNES 12 DE JUNIO • {reservas.length} reservas totales
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -802,7 +801,7 @@ import { useState, useEffect, useMemo } from "react";
             </div>
           </div>
         </div>
-
+  
         <div style={S.incomeBreak}>
           <div style={S.incomeBreakTitle}>
             DESGLOSE DE INGRESOS APROBADOS
@@ -915,7 +914,7 @@ import { useState, useEffect, useMemo } from "react";
                     </span>
                   )}
                 </div>
-  
+
                 <div style={S.resGrid}>
                   <div style={S.resField}>
                     <div style={S.fk}>NOMBRE</div>
@@ -949,6 +948,33 @@ import { useState, useEffect, useMemo } from "react";
                   </div>
                 </div>
 
+                {r.vipSelections && (
+                  <div
+                    style={{
+                      marginBottom: 10,
+                      padding: "8px 10px",
+                      background: `${G}10`,
+                      border: `1px solid ${G}30`,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: G,
+                        letterSpacing: 1,
+                        marginBottom: 4,
+                      }}
+                    >
+                      PAQUETE VIP — SELECCIONES
+                    </div>
+                    <div style={{ fontSize: 12, color: "#ccd6f0", lineHeight: 1.6 }}>
+                      🍺 {r.vipSelections.cerveza} · 🥃 {r.vipSelections.licor} ·
+                      🥤 {r.vipSelections.soda}
+                    </div>
+                  </div>
+                )}
+  
                 <div style={S.resActions}>
                   {status !== "confirmed" && (
                     <button

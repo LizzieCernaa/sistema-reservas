@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
     }, []);
     return hash;
   }
-  
+
   const G = "#E8A020";
   const BG = "#09111f";
   const CARD = "#0f1a2e";
@@ -88,18 +88,51 @@ import { useState, useEffect } from "react";
     },
   ];
 
+  // Paquete Mesa VIP: items fijos + opciones a elegir por el cliente.
+  const VIP_FIXED = [
+    "Mesa + 6 sillas",
+    "1 balde de 6 cervezas (elegí el tipo)",
+    "1 botella de licor (elegí la marca)",
+    "2 platos de boquitas Diana",
+    "1 plato de nachos",
+    "1 soda de 2.5L (elegí el sabor)",
+    "Vasos + hielo ilimitado + servicio de meseros",
+  ];
+  const CERVEZA_OPTIONS = [
+    "Cerveza Nacional",
+    "Cerveza Extranjera",
+    "Pilsener",
+    "Golden",
+    "Heineken",
+  ];
+  const LICOR_OPTIONS = [
+    "Aguardiente Trenzuda Tamarindo Picado 700ml",
+    "Ron Botran 700ml",
+    "Ron Flor de Caña 750ml",
+    "Tequila José Cuervo Especial Oro 750ml",
+    "Vodka Smirnoff Rojo 750ml",
+    "Vodka Seco Petrov Frutos Rojos 700ml",
+  ];
+  const SODA_OPTIONS = ["Coca-Cola 2.5L", "Sprite 2.5L"];
+  const VIP_DEFAULTS = {
+    cerveza: CERVEZA_OPTIONS[0],
+    licor: LICOR_OPTIONS[0],
+    soda: SODA_OPTIONS[0],
+  };
+  
   export default function App() {
     const hash = useHashRoute();
     if (hash === "#admin") return <AdminPanel />;
     return <Reservas />;
   }
-
+  
   function Reservas() {
     const [tab, setTab] = useState("mesas");
     const [step, setStep] = useState("browse");
     const [selMesa, setSelMesa] = useState(null);
     const [selCombo, setSelCombo] = useState(null);
     const [comboMesa, setComboMesa] = useState(null);
+    const [vipSelections, setVipSelections] = useState(VIP_DEFAULTS);
     const [form, setForm] = useState({ name: "", phone: "" });
     const [res, setRes] = useState({ g: {}, v: {} });
     const [confirm, setConfirm] = useState(null);
@@ -153,11 +186,20 @@ import { useState, useEffect } from "react";
 
     const proceed = () => {
       if (tab === "mesas" && selMesa) {
-        setStep("form");
+        setStep(selMesa.type === "v" ? "vipOptions" : "form");
         return;
       }
       if (tab === "combos" && selCombo) {
-        setStep(selCombo.hasMesa ? "selectMesa" : "form");
+        // Si el combo incluye mesa y el cliente ya eligió una, no se la
+        // volvemos a pedir: reusamos selMesa como comboMesa.
+        if (selCombo.hasMesa && selMesa) {
+          setComboMesa(selMesa);
+          setStep(selMesa.type === "v" ? "vipOptions" : "form");
+        } else if (selCombo.hasMesa) {
+          setStep("selectMesa");
+        } else {
+          setStep("form");
+        }
       }
     };
 
@@ -166,6 +208,8 @@ import { useState, useEffect } from "react";
       setSubmitting(true);
       setErrorMsg("");
       const mesa = selMesa || comboMesa;
+      const isVip = mesa?.type === "v";
+      const vip = isVip ? vipSelections : null;
       const id = "R-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       try {
         if (mesa) {
@@ -177,8 +221,9 @@ import { useState, useEffect } from "react";
           phone: form.phone.trim(),
           mesa,
           combo: selCombo,
+          vipSelections: vip,
         });
-        setConfirm({ id, ...form, mesa, combo: selCombo });
+        setConfirm({ id, ...form, mesa, combo: selCombo, vipSelections: vip });
         setStep("done");
       } catch (e) {
         console.error(e);
@@ -195,11 +240,12 @@ import { useState, useEffect } from "react";
       setSelMesa(null);
       setSelCombo(null);
       setComboMesa(null);
+      setVipSelections(VIP_DEFAULTS);
       setForm({ name: "", phone: "" });
       setConfirm(null);
       setErrorMsg("");
     };
-  
+
     const inSel = step === "selectMesa";
     const activeMesa = inSel ? comboMesa : selMesa;
     const hasAction = selMesa || selCombo || comboMesa;
@@ -377,6 +423,18 @@ import { useState, useEffect } from "react";
         boxSizing: "border-box",
         outline: "none",
       },
+      fSelect: {
+        width: "100%",
+        padding: "11px 13px",
+        background: CARD2,
+        border: "1px solid #1e3050",
+        borderRadius: 9,
+        color: "#ccd6f0",
+        fontSize: 14,
+        fontFamily: "'Outfit',sans-serif",
+        boxSizing: "border-box",
+        outline: "none",
+      },
       btn: (dis) => ({
         width: "100%",
         padding: "13px",
@@ -483,6 +541,19 @@ import { useState, useEffect } from "react";
       },
     };
 
+    const footer = (
+      <div
+        style={{
+          color: "#556",
+          fontSize: 10,
+          textAlign: "center",
+          padding: 16,
+        }}
+      >
+        Desarrollado por Alicia Ovando • Mayo 2026
+      </div>
+    );
+
     if (!loaded)
       return (
         <div
@@ -527,6 +598,9 @@ import { useState, useEffect } from "react";
           `#${confirm.combo.id} ${confirm.combo.name} ` +
             `($${confirm.combo.price})`,
         ],
+        confirm.vipSelections && ["Cerveza VIP", confirm.vipSelections.cerveza],
+        confirm.vipSelections && ["Licor VIP", confirm.vipSelections.licor],
+        confirm.vipSelections && ["Soda VIP", confirm.vipSelections.soda],
       ].filter(Boolean);
 
       const waMsg =
@@ -543,7 +617,7 @@ import { useState, useEffect } from "react";
             <div style={{ ...S.h1, color: "#3ecf74" }}>
               ¡Reserva Confirmada!
             </div>
-            <div style={S.sub}>MIÉRCOLES 20 DE MAYO</div>
+            <div style={S.sub}>VIERNES 12 DE JUNIO</div>
           </div>
           <div style={S.confCard}>
             <div style={{ textAlign: "center", padding: "12px 0 18px" }}>
@@ -562,7 +636,7 @@ import { useState, useEffect } from "react";
               </div>
             ))}
           </div>
-
+  
           <div style={S.waCard}>
             <div
               style={{
@@ -644,12 +718,114 @@ import { useState, useEffect } from "react";
               Nueva reserva
             </button>
           </div>
+          {footer}
         </div>
       );
     }
 
+    if (step === "vipOptions") {
+      const mesa = selMesa || comboMesa;
+      return (
+        <div style={S.root}>
+          <div style={S.hdr}>
+            <div style={S.h1}>Personaliza tu Mesa VIP</div>
+            <div style={S.sub}>VIERNES 12 DE JUNIO 2025</div>
+          </div>
+          <button
+            style={S.back}
+            onClick={() =>
+              setStep(selCombo?.hasMesa ? "selectMesa" : "browse")
+            }
+          >
+            ← Volver
+          </button>
+          <div style={{ padding: "8px 14px 20px" }}>
+            <div style={S.sumCard}>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: G,
+                  letterSpacing: 1,
+                  marginBottom: 8,
+                }}
+              >
+                PAQUETE MESA VIP {mesa ? `#${mesa.n}` : ""} — $60
+              </div>
+              <div style={{ fontSize: 12, color: "#889" }}>
+                {VIP_FIXED.map((item, i) => (
+                  <div key={i} style={{ padding: "2px 0" }}>
+                    <span style={{ color: G, opacity: 0.5 }}>• </span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 13 }}>
+              <label style={S.fLabel}>BALDE DE 6 CERVEZAS — ELEGÍ EL TIPO</label>
+              <select
+                style={S.fSelect}
+                value={vipSelections.cerveza}
+                onChange={(e) =>
+                  setVipSelections({ ...vipSelections, cerveza: e.target.value })
+                }
+              >
+                {CERVEZA_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 13 }}>
+              <label style={S.fLabel}>BOTELLA DE LICOR — ELEGÍ LA MARCA</label>
+              <select
+                style={S.fSelect}
+                value={vipSelections.licor}
+                onChange={(e) =>
+                  setVipSelections({ ...vipSelections, licor: e.target.value })
+                }
+              >
+                {LICOR_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={S.fLabel}>SODA 2.5L — ELEGÍ EL SABOR</label>
+              <select
+                style={S.fSelect}
+                value={vipSelections.soda}
+                onChange={(e) =>
+                  setVipSelections({ ...vipSelections, soda: e.target.value })
+                }
+              >
+                {SODA_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </div>
+  
+            <button onClick={() => setStep("form")} style={S.btn(false)}>
+              Continuar →
+            </button>
+          </div>
+          {footer}
+        </div>
+      );
+    }
+  
     if (step === "form") {
       const mesa = selMesa || comboMesa;
+      const isVip = mesa?.type === "v";
+      const mesaPrice = isVip ? 60 : mesa?.type === "g" ? 5 : 0;
+      const total = mesaPrice + (selCombo?.price || 0);
       const ok =
         form.name.trim().length > 0 &&
         form.phone.trim().length > 0 &&
@@ -658,13 +834,19 @@ import { useState, useEffect } from "react";
         <div style={S.root}>
           <div style={S.hdr}>
             <div style={S.h1}>Completa tu reserva</div>
-            <div style={S.sub}>MIÉRCOLES 20 DE MAYO 2025</div>
+            <div style={S.sub}>VIERNES 12 DE JUNIO 2025</div>
           </div>
           <button
             style={S.back}
             onClick={() => {
               setErrorMsg("");
-              setStep(selCombo?.hasMesa ? "selectMesa" : "browse");
+              setStep(
+                isVip
+                  ? "vipOptions"
+                  : selCombo?.hasMesa
+                  ? "selectMesa"
+                  : "browse"
+              );
             }}
           >
             ← Volver
@@ -696,6 +878,42 @@ import { useState, useEffect } from "react";
                   </b>
                 </div>
               )}
+              {isVip && (
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#889",
+                    marginTop: 6,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <div>
+                    🍺 Cerveza:{" "}
+                    <b style={{ color: "#ccd6f0" }}>{vipSelections.cerveza}</b>
+                  </div>
+                  <div>
+                    🥃 Licor:{" "}
+                    <b style={{ color: "#ccd6f0" }}>{vipSelections.licor}</b>
+                  </div>
+                  <div>
+                    🥤 Soda:{" "}
+                    <b style={{ color: "#ccd6f0" }}>{vipSelections.soda}</b>
+                  </div>
+                </div>
+              )}
+              <div
+                style={{
+                  marginTop: 10,
+                  paddingTop: 10,
+                  borderTop: `1px solid ${G}20`,
+                  fontSize: 15,
+                  color: G,
+                  fontWeight: 700,
+                  textAlign: "right",
+                }}
+              >
+                TOTAL: ${total}
+              </div>
               {!selCombo && !mesa && (
                 <div style={{ fontSize: 12, color: "#667" }}>
                   Combo sin mesa incluida
@@ -764,6 +982,7 @@ import { useState, useEffect } from "react";
               {submitting ? "Guardando..." : "Confirmar Reserva →"}
             </button>
           </div>
+          {footer}
         </div>
       );
     }
@@ -792,7 +1011,7 @@ import { useState, useEffect } from "react";
         })}
       </div>
     );
-
+  
     const gA = countAvail("g", 84);
     const vA = countAvail("v", 17);
 
@@ -801,8 +1020,21 @@ import { useState, useEffect } from "react";
         <div style={S.hdr}>
           <div style={S.h1}>SISTEMA DE RESERVAS</div>
           <div style={S.sub}>
-            MIÉRCOLES 20 DE MAYO • SELECCIONA TU LUGAR
+            VIERNES 12 DE JUNIO • SELECCIONA TU LUGAR
           </div>
+          <a
+            href="#admin"
+            style={{
+              color: "#556",
+              fontSize: 10,
+              textDecoration: "none",
+              letterSpacing: 1.5,
+              marginTop: 8,
+              display: "inline-block",
+            }}
+          >
+            🔒 Admin
+          </a>
         </div>
         <div style={S.statsRow}>
           <div style={{ ...S.statCell, borderLeft: "none" }}>
@@ -1093,7 +1325,7 @@ import { useState, useEffect } from "react";
             <button
               onClick={() => {
                 if (inSel && comboMesa) {
-                  setStep("form");
+                  setStep(comboMesa.type === "v" ? "vipOptions" : "form");
                   return;
                 }
                 if (!inSel) proceed();
@@ -1109,6 +1341,8 @@ import { useState, useEffect } from "react";
             </button>
           </div>
         )}
+        {footer}
       </div>
     );
   }
+  
