@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
     }, []);
     return hash;
   }
-
+  
   const G = "#E8A020";
   const BG = "#09111f";
   const CARD = "#0f1a2e";
@@ -87,7 +87,7 @@ import { useState, useEffect } from "react";
       items: ["4 entradas", "8 cervezas", "Mesa + 4 sillas"],
     },
   ];
-  
+
   // Paquete Mesa VIP: items fijos + opciones a elegir por el cliente.
   const VIP_FIXED = [
     "Mesa + 6 sillas",
@@ -163,7 +163,7 @@ import { useState, useEffect } from "react";
       if (v === "D") return "d";
       return "r";
     };
-  
+
     const countAvail = (type, total) =>
       Array.from({ length: total }, (_, i) => i + 1).filter(
         (n) => getStatus(type, n) === "a"
@@ -196,7 +196,7 @@ import { useState, useEffect } from "react";
         }
       }
     };
-
+  
     const submit = async () => {
       if (!form.name.trim() || !form.phone.trim() || submitting) return;
       setSubmitting(true);
@@ -534,7 +534,7 @@ import { useState, useEffect } from "react";
         marginBottom: 12,
       },
     };
-
+  
     const footer = (
       <div
         style={{
@@ -603,7 +603,7 @@ import { useState, useEffect } from "react";
       const waLink =
         `https://wa.me/${WHATSAPP_NUMBER}` +
         `?text=${encodeURIComponent(waMsg)}`;
-
+  
       return (
         <div style={S.root}>
           <div style={{ ...S.hdr, paddingTop: 22 }}>
@@ -805,7 +805,7 @@ import { useState, useEffect } from "react";
                 ))}
               </select>
             </div>
-  
+
             <button onClick={() => setStep("form")} style={S.btn(false)}>
               Continuar →
             </button>
@@ -814,11 +814,11 @@ import { useState, useEffect } from "react";
         </div>
       );
     }
-  
+
     if (step === "form") {
       const mesa = selMesa || comboMesa;
       const isVip = mesa?.type === "v";
-      const mesaPrice = isVip ? 60 : mesa?.type === "g" ? 5 : 0;
+      const mesaPrice = isVip ? 60 : mesa?.type === "g" ? 6 : 0;
       const total = mesaPrice + (selCombo?.price || 0);
       const ok =
         form.name.trim().length > 0 &&
