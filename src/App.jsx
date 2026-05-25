@@ -87,7 +87,7 @@ import { useState, useEffect } from "react";
       items: ["4 entradas", "8 cervezas", "Mesa + 4 sillas"],
     },
   ];
-
+  
   // Paquete Mesa VIP: items fijos + opciones a elegir por el cliente.
   const VIP_FIXED = [
     "Mesa + 6 sillas",
@@ -98,13 +98,7 @@ import { useState, useEffect } from "react";
     "1 soda de 2.5L (elegí el sabor)",
     "Vasos + hielo ilimitado + servicio de meseros",
   ];
-  const CERVEZA_OPTIONS = [
-    "Cerveza Nacional",
-    "Cerveza Extranjera",
-    "Pilsener",
-    "Golden",
-    "Heineken",
-  ];
+  const CERVEZA_OPTIONS = ["Pilsener", "Golden", "Heineken"];
   const LICOR_OPTIONS = [
     "Aguardiente Trenzuda Tamarindo Picado 700ml",
     "Ron Botran 700ml",
@@ -119,13 +113,13 @@ import { useState, useEffect } from "react";
     licor: LICOR_OPTIONS[0],
     soda: SODA_OPTIONS[0],
   };
-  
+
   export default function App() {
     const hash = useHashRoute();
     if (hash === "#admin") return <AdminPanel />;
     return <Reservas />;
   }
-  
+
   function Reservas() {
     const [tab, setTab] = useState("mesas");
     const [step, setStep] = useState("browse");
@@ -169,7 +163,7 @@ import { useState, useEffect } from "react";
       if (v === "D") return "d";
       return "r";
     };
-
+  
     const countAvail = (type, total) =>
       Array.from({ length: total }, (_, i) => i + 1).filter(
         (n) => getStatus(type, n) === "a"
@@ -183,7 +177,7 @@ import { useState, useEffect } from "react";
       if (inSel) setComboMesa(same ? null : { type, n });
       else setSelMesa(same ? null : { type, n });
     };
-
+  
     const proceed = () => {
       if (tab === "mesas" && selMesa) {
         setStep(selMesa.type === "v" ? "vipOptions" : "form");
@@ -245,7 +239,7 @@ import { useState, useEffect } from "react";
       setConfirm(null);
       setErrorMsg("");
     };
-
+  
     const inSel = step === "selectMesa";
     const activeMesa = inSel ? comboMesa : selMesa;
     const hasAction = selMesa || selCombo || comboMesa;
@@ -636,7 +630,7 @@ import { useState, useEffect } from "react";
               </div>
             ))}
           </div>
-  
+
           <div style={S.waCard}>
             <div
               style={{
@@ -1011,7 +1005,7 @@ import { useState, useEffect } from "react";
         })}
       </div>
     );
-  
+
     const gA = countAvail("g", 84);
     const vA = countAvail("v", 17);
 
@@ -1345,4 +1339,3 @@ import { useState, useEffect } from "react";
       </div>
     );
   }
-  

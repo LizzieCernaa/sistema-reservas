@@ -10,13 +10,13 @@ import { useState, useEffect, useMemo } from "react";
     actualizarEstadoReserva,
     borrarReserva,
   } from "../firebase/reservasService";
-
+  
   // ⚠️  Credenciales hardcodeadas — sólo para uso interno antes del evento.
   // Para producción real, migrar a Firebase Auth.
   const ADMIN_USER = "admin";
   const ADMIN_PASS = "evento2025";
   const SESSION_KEY = "rsv_admin_session";
-  
+
   const G = "#E8A020";
   const BG = "#09111f";
   const CARD = "#0f1a2e";
@@ -27,7 +27,7 @@ import { useState, useEffect, useMemo } from "react";
 
   const TOTAL_G = 84;
   const TOTAL_V = 17;
-
+  
   // Precios para cálculo de ingresos
   const PRICE_MESA_G = 5;
   const PRICE_MESA_V = 60;
@@ -61,7 +61,7 @@ import { useState, useEffect, useMemo } from "react";
     const [filter, setFilter] = useState("all");
     const [busy, setBusy] = useState({});
     const [resetting, setResetting] = useState(false);
-
+  
     useEffect(() => {
       if (!authed) return;
       let mLoaded = false;
@@ -302,7 +302,7 @@ import { useState, useEffect, useMemo } from "react";
         cursor: "pointer",
         fontFamily: "'Outfit',sans-serif",
       },
-  
+
       countersGrid: {
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
@@ -653,7 +653,7 @@ import { useState, useEffect, useMemo } from "react";
         color: RED,
       },
     ];
-  
+
     // Ingresos por estado
     const aprobadas = reservas.filter((r) => r.status === "confirmed");
     const pendientes = reservas.filter(
@@ -801,7 +801,7 @@ import { useState, useEffect, useMemo } from "react";
             </div>
           </div>
         </div>
-  
+
         <div style={S.incomeBreak}>
           <div style={S.incomeBreakTitle}>
             DESGLOSE DE INGRESOS APROBADOS
@@ -847,7 +847,7 @@ import { useState, useEffect, useMemo } from "react";
             {resetting ? "Reseteando..." : "🔄 Resetear todas las mesas"}
           </button>
         </div>
-
+  
         <div style={S.filterRow}>
           {filterDefs.map((f) => (
             <button
@@ -914,7 +914,7 @@ import { useState, useEffect, useMemo } from "react";
                     </span>
                   )}
                 </div>
-
+  
                 <div style={S.resGrid}>
                   <div style={S.resField}>
                     <div style={S.fk}>NOMBRE</div>
@@ -974,7 +974,7 @@ import { useState, useEffect, useMemo } from "react";
                     </div>
                   </div>
                 )}
-  
+
                 <div style={S.resActions}>
                   {status !== "confirmed" && (
                     <button
@@ -1016,6 +1016,17 @@ import { useState, useEffect, useMemo } from "react";
               </div>
             );
           })}
+        </div>
+
+        <div
+          style={{
+            color: "#556",
+            fontSize: 10,
+            textAlign: "center",
+            padding: 16,
+          }}
+        >
+          Desarrollado por Alicia Ovando • Mayo 2026
         </div>
       </div>
     );
